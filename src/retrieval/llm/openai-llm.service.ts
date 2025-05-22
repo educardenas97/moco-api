@@ -74,6 +74,9 @@ export class OpenAILLMService implements LLMService {
         4. En caso de no encontrar información relevante, indicar que no se encontró respuesta
         5. Si la consulta no es legal o sobre legislación, indicar que no es posible responder
         6. Si la consulta es sobre legislación de otro país, indicar que no es posible responder
+
+
+        El formato de salida debe ser en Markdown, con encabezados y listas numeradas o con viñetas según corresponda.
         `;
 
       // Determinar el modelo a utilizar

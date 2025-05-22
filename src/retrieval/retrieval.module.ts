@@ -14,6 +14,8 @@ import { TerminusModule } from '@nestjs/terminus';
 import { RedisProvider } from '../providers/redis.provider';
 import { RedisDocumentContentService } from './document-content/redis-document-content.service';
 import { RedisVectorRetrievalService } from './document-retrieval/redis-retrieval.service';
+import { LLMServiceFactory } from './llm/llm-service.factory';
+import { OpenAILLMService } from './llm/openai-llm.service';
 
 @Module({
   imports: [
@@ -26,8 +28,10 @@ import { RedisVectorRetrievalService } from './document-retrieval/redis-retrieva
     EmbeddingServiceFactory,
     DocumentRetrievalServiceFactory,
     DocumentContentServiceFactory,
+    LLMServiceFactory,
     GoogleGenerativeAiEmbeddingService,
     OpenAiEmbeddingService,
+    OpenAILLMService,
     VertexAiMatchingEngineRetrievalService,
     FirestoreDocumentContentService,
     RedisDocumentContentService,

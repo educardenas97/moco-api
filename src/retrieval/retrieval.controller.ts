@@ -10,8 +10,10 @@ import {
 import { RetrievalService } from './retrieval.service';
 import { RetrievalRequestDto } from './dto/retrieval-request.dto';
 import { RetrievalResponseDto } from './dto/retrieval-response.dto';
+import { LegalQueryRequestDto } from './dto/legal-query-request.dto';
+import { LegalQueryResponseDto } from './dto/legal-query-response.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { APIResponseDto } from '../classes';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 
@@ -56,6 +58,32 @@ export class RetrievalController {
       return new APIResponseDto({
         topics,
       });
+    } catch (error) {
+      return new APIResponseDto({}, error);
+    }
+  }
+
+  /**
+   * Consulta legal que responde mediante un modelo de lenguaje utilizando
+   * documentos legales como leyes, decretos y tratados
+   * @param legalQueryRequestDto Consulta legal a realizar
+   * @returns Respuesta generada y documentos fuente
+   */
+  @Post('legal-query')
+  @UseGuards(AuthGuard('bearer'))
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Realiza una consulta legal utilizando un LLM y documentos jurídicos' })
+  @ApiResponse({
+    status: 200,
+    description: 'Respuesta generada y documentos relacionados',
+    type: LegalQueryResponseDto,
+  })
+  async queryLegalDocuments(
+    @Body() legalQueryRequestDto: LegalQueryRequestDto,
+  ): Promise<APIResponseDto> {
+    try {
+      const result = await this.retrievalService.queryLegalDocuments(legalQueryRequestDto);
+      return new APIResponseDto(result);
     } catch (error) {
       return new APIResponseDto({}, error);
     }

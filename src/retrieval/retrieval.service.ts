@@ -73,7 +73,7 @@ export class RetrievalService {
               context.text && context.text.trim()
                 ? {
                     metadata: {
-                      path: `gs://knowledge-base-docs-fintech-ia-labs/${doc.filename}`,
+                      path: `gs://${process.env.GOOGLE_CLOUD_STORAGE_BUCKET}/${doc.filename}`,
                       description: 'Documento obtenido desde GCP',
                       context: context.metadata,
                     },
@@ -135,7 +135,7 @@ export class RetrievalService {
       retrievalRequest.query = legalQueryRequestDto.query;
       retrievalRequest.knowledge_id = 'legal'; // Identificador para el conocimiento legal
       retrievalRequest.retrieval_setting = {
-        top_k: 15, // Recuperar los 5 documentos más relevantes
+        top_k: 15, 
         score_threshold: 0.9, // Umbral de relevancia
       };
 

@@ -76,7 +76,7 @@ export class OpenAILLMService implements LLMService {
         6. Si la consulta es sobre legislación de otro país, indicar que no es posible responder
 
 
-        El formato de salida debe ser en Markdown, con encabezados y listas numeradas o con viñetas según corresponda.
+        El formato de salida siempre debe ser en Markdown, con encabezados y listas numeradas o con viñetas según corresponda.
         `;
 
       // Determinar el modelo a utilizar

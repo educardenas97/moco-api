@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: moco-api-config
+data:
+  PORT: "4001"
+  CACHE_TTL: "3600"
+  GCP_PROJECT_ID: "ia-labs-451613"
+  GOOGLE_VERTEXAI_MATCHINGENGINE_INDEX: "index_deploy_1740158326540"
+  GOOGLE_VERTEXAI_MATCHINGENGINE_INDEXENDPOINT: "projects/848681438619/locations/us-east4/indexEndpoints/4378316874455187456"
+  GOOGLE_VERTEXAI_API_ENDPOINT: "1948337656.us-east4-848681438619.vdb.vertexai.goog"
+  GOOGLE_CLOUD_STORAGE_BUCKET: "knowledge-base-docs-ia-labs-451613"
+  NODE_ENV: "production"
+  # Modelo de OpenAI a utilizar
+  OPENAI_MODEL: "gpt-4.1"

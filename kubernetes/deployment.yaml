@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moco-api-deployment
+  labels:
+    app: moco-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: moco-api
+  template:
+    metadata:
+      labels:
+        app: moco-api
+    spec:
+      containers:
+      - name: moco-api
+        image: localhost:5000/moco-api:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "1"
+            memory: 600M
+          requests:
+            cpu: "0.2"
+            memory: 200M
+        ports:
+        - containerPort: 4001
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 4001
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        env:
+          # Variables desde el ConfigMap (no sensibles)
+          - name: TZ
+            value: "America/Asuncion"  # Zona horaria de Paraguay
+          - name: PORT
+            valueFrom:
+              configMapKeyRef:
+                name: moco-api-config
+                key: PORT
+          - name: CACHE_TTL
+            valueFrom:
+              configMapKeyRef:
+                name: moco-api-config
+                key: CACHE_TTL
+          - name: GCP_PROJECT_ID
+            valueFrom:
+              configMapKeyRef:
+                name: moco-api-config
+                key: GCP_PROJECT_ID
+          - name: GOOGLE_VERTEXAI_MATCHINGENGINE_INDEX
+            valueFrom:
+              configMapKeyRef:
+                name: moco-api-config
+                key: GOOGLE_VERTEXAI_MATCHINGENGINE_INDEX
+          - name: GOOGLE_VERTEXAI_MATCHINGENGINE_INDEXENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: moco-api-config
+                key: GOOGLE_VERTEXAI_MATCHINGENGINE_INDEXENDPOINT
+          - name: GOOGLE_VERTEXAI_API_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: moco-api-config
+                key: GOOGLE_VERTEXAI_API_ENDPOINT
+          - name: GOOGLE_CLOUD_STORAGE_BUCKET
+            valueFrom:
+              configMapKeyRef:
+                name: moco-api-config
+                key: GOOGLE_CLOUD_STORAGE_BUCKET
+          # Variables desde el Secret (sensibles)
+          - name: OPENAI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: moco-api-secret
+                key: OPENAI_API_KEY
+          - name: GOOGLE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: moco-api-secret
+                key: GOOGLE_API_KEY
+          - name: GOOGLE_CREDENTIALS
+            valueFrom:
+              secretKeyRef:
+                name: moco-api-secret
+                key: GOOGLE_CREDENTIALS
+          - name: REDIS_URL
+            valueFrom:
+              secretKeyRef:
+                name: moco-api-secret
+                key: REDIS_URL
+          - name: REDIS_VECTOR_INDEX
+            valueFrom:
+              secretKeyRef:
+                name: moco-api-secret
+                key: REDIS_VECTOR_INDEX
+          - name: VALID_TOKENS
+            valueFrom:
+              secretKeyRef:
+                name: moco-api-secret
+                key: VALID_TOKENS
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moco-api-service
+  labels:
+    app: moco-api
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "4001"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    protocol: TCP
+    port: 4000
+    targetPort: 4001
+  selector:
+    app: moco-api

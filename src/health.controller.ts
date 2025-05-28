@@ -5,6 +5,7 @@ import { ServiceUnavailableException } from '@nestjs/common';
 import { HealthCheckService, HealthCheck } from '@nestjs/terminus';
 import { StorageHealthIndicator } from './storage/storage.health';
 import { RetrievalHealthIndicator } from './retrieval/retrieval.health';
+import { MongoDBHealthIndicator } from './providers/mongodb.health';
 
 @Controller('')
 @ApiBearerAuth()
@@ -13,6 +14,7 @@ export class HealthController {
     private readonly health: HealthCheckService,
     private readonly storageHealth: StorageHealthIndicator,
     private readonly retrievalHealth: RetrievalHealthIndicator,
+    private readonly mongodbHealth: MongoDBHealthIndicator,
   ) {}
 
   @Get('health')
@@ -21,6 +23,7 @@ export class HealthController {
     const result = await this.health.check([
       () => this.storageHealth.isHealthy('storage'),
       () => this.retrievalHealth.isHealthy('retrieval'),
+      () => this.mongodbHealth.isHealthy('mongodb'),
     ]);
 
     const services: { name: string; status: string }[] = [];

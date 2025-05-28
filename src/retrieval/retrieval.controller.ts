@@ -16,10 +16,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { APIResponseDto } from '../classes';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { QALoggingInterceptor } from '../interceptors/qa-logging.interceptor';
 
 @Controller('retrieval')
 @ApiBearerAuth()
-@UseInterceptors(CacheInterceptor)
+@UseInterceptors(CacheInterceptor, QALoggingInterceptor)
 export class RetrievalController {
   constructor(private readonly retrievalService: RetrievalService) {}
 

@@ -24,7 +24,8 @@ El proyecto está organizado en módulos funcionales, cada uno con su propia doc
 - **Módulo de Almacenamiento**: Gestión de archivos en Google Cloud Storage
 - **Módulo de Autenticación**: Validación de tokens Bearer y seguridad de endpoints
 - **Módulo de Media**: Administración de archivos multimedia y uploads
-- **Módulo de Proveedores**: Servicios compartidos como la conexión a Redis
+- **Módulo de Analytics**: Sistema de seguimiento y análisis de consultas Q&A con MongoDB
+- **Módulo de Proveedores**: Servicios compartidos como conexiones a Redis y MongoDB
 - **Health Checks**: Monitoreo del estado de los servicios críticos
 
 > Cada módulo tiene su propio archivo README.md con documentación detallada sobre su funcionalidad específica.
@@ -80,6 +81,9 @@ GOOGLE_CLOUD_STORAGE_BUCKET=        # Nombre del bucket de Google Cloud Storage
 GOOGLE_CREDENTIALS=                 # Cadena JSON con las credenciales de Google Cloud
 GOOGLE_CREDENTIALS_PATH=            # Ruta al archivo de credenciales de Google Cloud (alternativa a GOOGLE_CREDENTIALS)
 GOOGLE_API_KEY=                     # Clave API de Google (si se usa Google Generative AI)
+
+# Configuración de MongoDB (para Analytics Q&A)
+MONGODB_URL=mongodb://localhost:27017/moco-api  # URL de conexión a MongoDB
 ```
 
 > Nota: La configuración específica dependerá de los servicios que desees utilizar (Redis o Vertex AI para recuperación, OpenAI o Google para embeddings).
@@ -136,7 +140,8 @@ Cada módulo tiene su propia documentación detallada en su archivo `readme.md`:
 - **[Módulo de Autenticación](/src/auth/readme.md)**: Protección de endpoints con tokens Bearer
 - **[Módulo de Almacenamiento](/src/storage/readme.md)**: Gestión de archivos en Google Cloud Storage
 - **[Módulo de Media](/src/media/readme.md)**: Subida y gestión de archivos multimedia
-- **[Módulo de Proveedores](/src/providers/readme.md)**: Servicios compartidos como Redis
+- **[Módulo de Analytics](/src/analytics/readme.md)**: Sistema de seguimiento y análisis de consultas Q&A
+- **[Módulo de Proveedores](/src/providers/readme.md)**: Servicios compartidos como Redis y MongoDB
 - **[Health Checks](/src/health/readme.md)**: Monitoreo del estado de los servicios
 
 ### Diagrama de Componentes

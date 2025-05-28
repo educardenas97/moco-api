@@ -12,6 +12,9 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { RetrievalHealthIndicator } from './retrieval.health';
 import { TerminusModule } from '@nestjs/terminus';
 import { RedisProvider } from '../providers/redis.provider';
+import { MongoDBProvider } from '../providers/mongodb.provider';
+import { QAService } from '../providers/qa.service';
+import { QALoggingInterceptor } from '../interceptors/qa-logging.interceptor';
 import { RedisDocumentContentService } from './document-content/redis-document-content.service';
 import { RedisVectorRetrievalService } from './document-retrieval/redis-retrieval.service';
 import { LLMServiceFactory } from './llm/llm-service.factory';
@@ -38,6 +41,9 @@ import { OpenAILLMService } from './llm/openai-llm.service';
     RedisVectorRetrievalService,
     RetrievalHealthIndicator,
     RedisProvider,
+    MongoDBProvider,
+    QAService,
+    QALoggingInterceptor,
   ],
   exports: [RetrievalService, RetrievalHealthIndicator],
 })

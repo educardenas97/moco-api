@@ -1,15 +1,16 @@
-import { Provider } from '@nestjs/common';
+import { Provider, Logger } from '@nestjs/common';
 import * as redis from 'redis';
 
 export const RedisProvider: Provider = {
   provide: 'REDIS_CLIENT',
   useFactory: async () => {
+    const logger = new Logger('RedisProvider');
     const client = redis.createClient({
       url: process.env.REDIS_URL || 'redis://localhost:6379',
       socket: {
         reconnectStrategy: (retries) => {
           if (retries > 5) {
-            console.error('Intentos de reconexión fallidos');
+            logger.error('Intentos de reconexión fallidos');
             process.exit(1);
           }
           return Math.min(retries * 100, 5000);
@@ -20,9 +21,10 @@ export const RedisProvider: Provider = {
       },
     });
 
-    client.on('error', (error) => console.error('error de conexión:', error));
+    client.on('error', (error) => logger.error('error de conexión:', error));
     await client.connect();
-    client.on('connect', () => console.log('Conectado a Redis'));
+    client.on('connect', () => logger.log('Conectado a Redis'));
+    client.on('disconnect', () => logger.log('Desconectado de Redis'));
 
     return client;
   },

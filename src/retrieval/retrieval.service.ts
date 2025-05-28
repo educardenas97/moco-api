@@ -135,8 +135,8 @@ export class RetrievalService {
       retrievalRequest.query = legalQueryRequestDto.query;
       retrievalRequest.knowledge_id = 'legal'; // Identificador para el conocimiento legal
       retrievalRequest.retrieval_setting = {
-        top_k: 15, 
-        score_threshold: 0.9, // Umbral de relevancia
+        top_k: 20, // Recuperar los 20 documentos más relevantes
+        score_threshold: 0.95, // Umbral de relevancia
       };
 
       const documents = await this.retrieve(retrievalRequest);

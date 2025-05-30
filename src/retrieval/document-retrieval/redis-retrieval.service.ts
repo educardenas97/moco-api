@@ -39,6 +39,10 @@ export class RedisVectorRetrievalService implements DocumentRetrievalService {
         },
         RETURN: ['filename', 'score','page'],
         SORTBY: 'score',
+        LIMIT: {
+          from: 0,
+          size: numNeighbors,
+        },
         DIALECT: 2,
       });
 

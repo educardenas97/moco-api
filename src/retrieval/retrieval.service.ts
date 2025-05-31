@@ -81,6 +81,7 @@ export class RetrievalService {
                     score: doc.score || 1.0,
                     title: doc.filename,
                     content: context.text,
+                    pageNumber: doc.pageNumber,
                   }
                 : null,
             ),

@@ -13,4 +13,10 @@ export class RetrievalResponseDto {
   @ApiProperty()
   @IsString()
   content: string;
+
+  @ApiProperty({
+    description: 'Número de página del documento',
+  })
+  @IsNumber()
+  pageNumber: number;
 }

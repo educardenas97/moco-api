@@ -16,7 +16,11 @@ describe('RetrievalController', () => {
           useValue: {
             retrieve: jest.fn().mockResolvedValue([
               {
-                metadata: { path: 'path/to/doc', description: 'Descripción', context: {} },
+                metadata: {
+                  path: 'path/to/doc',
+                  description: 'Descripción',
+                  context: {},
+                },
                 context: {},
                 score: 0.9,
                 title: 'test.pdf',

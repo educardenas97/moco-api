@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { LLMService, GenerationOptions } from './llm-service.interface';
 import { RetrievalResponseDto } from '../dto/retrieval-response.dto';
+import { LegalPromptTemplates } from './legal-prompt-templates';
 import OpenAI from 'openai';
 
 /**
@@ -10,7 +11,7 @@ import OpenAI from 'openai';
 export class OpenAILLMService implements LLMService {
   private readonly logger = new Logger(OpenAILLMService.name);
   private openai: OpenAI;
-  private readonly defaultModel = 'gpt-4.1';
+  private readonly defaultModel = 'o4-mini'; // Modelo por defecto, puede ser configurado en variables de entorno
 
   constructor() {
     this.logger.log('Inicializando OpenAILLMService');
@@ -47,40 +48,23 @@ export class OpenAILLMService implements LLMService {
       }
 
       // Extraer contexto de los documentos recuperados
-      const context = documents
-        .map((doc) => `--- Documento: ${doc.title} ---\n${doc.content}`)
-        .join('\n\n');
+      const context = LegalPromptTemplates.formatDocumentsContext(documents);
 
       // Configurar valores por defecto
+      const country = options.country ?? 'paraguaya';
       const systemMessage =
         options.systemMessage ??
-        'Eres un asesor legal experto que responde con precisión y claridad, citando las fuentes legales correspondientes.';
-      const country = options.country ?? 'paraguaya';
+        LegalPromptTemplates.generateSystemMessage(country);
 
-      // Generar el prompt para el LLM
-      const prompt = `
-        Eres un asistente legal especializado en la legislación ${country}. La consulta es:
+      // Generar el prompt para el LLM usando la plantilla centralizada
+      const prompt = LegalPromptTemplates.generateLegalQueryPrompt(
+        query,
+        context,
+        country,
+      );
 
-        "${query}"
-
-        Basado en los siguientes documentos legales, proporciona una respuesta clara, precisa y fundamentada:
-
-        ${context}
-
-        Tu respuesta debe:
-        1. Explicar los aspectos legales relevantes a la consulta
-        2. Citar las leyes, decretos o tratados específicos que apliquen
-        3. Presentar la información de manera estructurada y comprensible
-        4. En caso de no encontrar información relevante, indicar que no se encontró respuesta
-        5. Si la consulta no es legal o sobre legislación, indicar que no es posible responder
-        6. Si la consulta es sobre legislación de otro país, indicar que no es posible responder
-
-
-        El formato de salida siempre debe ser en Markdown, con encabezados y listas numeradas o con viñetas según corresponda.
-        `;
-
-      // Determinar el modelo a utilizar
-      const model = process.env.OPENAI_MODEL || this.defaultModel;
+      // Determinar el modelo a utilizar (puede venir en options o usar variable de entorno)
+      const model = options.model || this.defaultModel;
 
       this.logger.debug(`Generando respuesta con modelo ${model}`);
 
@@ -101,7 +85,7 @@ export class OpenAILLMService implements LLMService {
 
       return (
         response.choices[0].message.content ||
-        'No se pudo generar una respuesta.'
+        LegalPromptTemplates.ERROR_RESPONSE
       );
     } catch (error) {
       this.logger.error('Error al generar respuesta con OpenAI', error);

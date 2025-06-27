@@ -20,61 +20,66 @@ export interface QARecord extends Document {
   updatedAt: Date;
 }
 
-export const QASchema = new Schema({
-  query: {
-    type: String,
-    required: true,
-    index: true,
-  },
-  answer: {
-    type: String,
-    required: true,
-  },
-  sources: [{
-    title: {
+export const QASchema = new Schema(
+  {
+    query: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    answer: {
       type: String,
       required: true,
     },
-    content: {
-      type: String,
-      required: true,
-    },
-    score: {
-      type: Number,
-      required: true,
-    },
+    sources: [
+      {
+        title: {
+          type: String,
+          required: true,
+        },
+        content: {
+          type: String,
+          required: true,
+        },
+        score: {
+          type: Number,
+          required: true,
+        },
+        metadata: {
+          type: Schema.Types.Mixed,
+          default: {},
+        },
+      },
+    ],
     metadata: {
-      type: Schema.Types.Mixed,
-      default: {},
-    },
-  }],
-  metadata: {
-    responseTime: {
-      type: Number,
-      required: true,
-    },
-    timestamp: {
-      type: Date,
-      required: true,
-      default: Date.now,
-    },
-    documentType: {
-      type: String,
-      required: false,
-    },
-    userId: {
-      type: String,
-      required: false,
-    },
-    endpoint: {
-      type: String,
-      required: true,
+      responseTime: {
+        type: Number,
+        required: true,
+      },
+      timestamp: {
+        type: Date,
+        required: true,
+        default: Date.now,
+      },
+      documentType: {
+        type: String,
+        required: false,
+      },
+      userId: {
+        type: String,
+        required: false,
+      },
+      endpoint: {
+        type: String,
+        required: true,
+      },
     },
   },
-}, {
-  timestamps: true,
-  collection: 'Q&A',
-});
+  {
+    timestamps: true,
+    collection: 'Q&A',
+  },
+);
 
 // Indexes for better performance
 QASchema.index({ 'metadata.timestamp': -1 });

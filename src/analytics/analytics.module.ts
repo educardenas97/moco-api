@@ -5,10 +5,7 @@ import { MongoDBProvider } from '../providers/mongodb.provider';
 
 @Module({
   controllers: [QAAnalyticsController],
-  providers: [
-    QAService,
-    MongoDBProvider,
-  ],
+  providers: [QAService, MongoDBProvider],
   exports: [QAService],
 })
 export class AnalyticsModule {}

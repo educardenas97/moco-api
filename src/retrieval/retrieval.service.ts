@@ -14,6 +14,8 @@ import { LegalQueryResponseDto } from './dto/legal-query-response.dto';
 import { RetrievalResponseDto } from './dto/retrieval-response.dto';
 import { LLMService } from './llm/llm-service.interface';
 import { LLMServiceFactory } from './llm/llm-service.factory';
+import { LLMConfig } from './llm/llm.config';
+import { LegalPromptTemplates } from './llm/legal-prompt-templates';
 
 @Injectable()
 export class RetrievalService {
@@ -144,25 +146,40 @@ export class RetrievalService {
 
       if (!documents || documents.length === 0) {
         return {
-          answer:
-            'No se encontraron documentos legales relevantes para responder a esta consulta.',
+          answer: LegalPromptTemplates.NO_DOCUMENTS_RESPONSE,
           sources: [],
         };
       }
 
-      // 2. Generar una respuesta usando el LLM con los documentos recuperados
-      const options = {
-        systemMessage:
-          'Eres un asesor legal experto que responde con precisión y claridad, citando las fuentes legales correspondientes.',
-        country: 'paraguaya', // Por defecto, legislación paraguaya
-      };
-
-      // Personalizar según tipo de documento si está presente
-      if (legalQueryRequestDto.documentType) {
-        options.systemMessage += ` Especializado en ${legalQueryRequestDto.documentType}.`;
+      // 2. Validar que el modelo sea compatible con el proveedor si se especifica
+      if (legalQueryRequestDto.provider && legalQueryRequestDto.model) {
+        if (
+          !LLMConfig.isValidModel(
+            legalQueryRequestDto.provider,
+            legalQueryRequestDto.model,
+          )
+        ) {
+          throw new Error(
+            `El modelo ${legalQueryRequestDto.model} no es válido para el proveedor ${legalQueryRequestDto.provider}`,
+          );
+        }
       }
 
-      const answer = await this.llmService.generateResponse(
+      // 3. Crear el servicio LLM específico basado en el proveedor solicitado
+      const llmService = this.llmServiceFactory.createService(
+        legalQueryRequestDto.provider,
+        legalQueryRequestDto.model,
+      );
+
+      // 4. Generar una respuesta usando el LLM con los documentos recuperados
+      const country = 'paraguaya'; // Por defecto, legislación paraguaya
+      const options = {
+        systemMessage: LegalPromptTemplates.generateSystemMessage(country),
+        country: country,
+        model: legalQueryRequestDto.model, // Modelo específico si se proporciona
+      };
+
+      const answer = await llmService.generateResponse(
         legalQueryRequestDto.query,
         documents,
         options,
@@ -174,6 +191,19 @@ export class RetrievalService {
       };
     } catch (error) {
       this.logger.error('Error al procesar la consulta legal', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene los modelos disponibles para cada proveedor LLM
+   * @returns Objeto con los modelos disponibles por proveedor
+   */
+  async getAvailableModels(): Promise<{ [provider: string]: string[] }> {
+    try {
+      return LLMConfig.getAvailableModels();
+    } catch (error) {
+      this.logger.error('Error al obtener modelos disponibles', error);
       throw error;
     }
   }

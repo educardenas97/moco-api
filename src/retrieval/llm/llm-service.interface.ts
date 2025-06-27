@@ -7,7 +7,7 @@ import { RetrievalResponseDto } from '../dto/retrieval-response.dto';
 export interface LLMService {
   /**
    * Genera una respuesta basada en una consulta y documentos de contexto
-   * 
+   *
    * @param query Consulta del usuario
    * @param documents Documentos recuperados como contexto
    * @param options Opciones adicionales para la generación (temperatura, max_tokens, etc.)
@@ -30,22 +30,27 @@ export interface GenerationOptions {
    * Valores más altos generan respuestas más creativas
    */
   temperature?: number;
-  
+
   /**
    * Número máximo de tokens a generar
    */
   maxTokens?: number;
-  
+
   /**
    * Mensaje del sistema para establecer el comportamiento del LLM
    */
   systemMessage?: string;
-  
+
   /**
    * País o legislación sobre la que se está consultando
    */
   country?: string;
-  
+
+  /**
+   * Modelo específico a utilizar
+   */
+  model?: string;
+
   /**
    * Otras opciones específicas del modelo
    */

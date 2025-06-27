@@ -73,7 +73,10 @@ export class RetrievalController {
   @Post('legal-query')
   @UseGuards(AuthGuard('bearer'))
   @HttpCode(200)
-  @ApiOperation({ summary: 'Realiza una consulta legal utilizando un LLM y documentos jurídicos' })
+  @ApiOperation({
+    summary:
+      'Realiza una consulta legal utilizando un LLM y documentos jurídicos',
+  })
   @ApiResponse({
     status: 200,
     description: 'Respuesta generada y documentos relacionados',
@@ -83,8 +86,31 @@ export class RetrievalController {
     @Body() legalQueryRequestDto: LegalQueryRequestDto,
   ): Promise<APIResponseDto> {
     try {
-      const result = await this.retrievalService.queryLegalDocuments(legalQueryRequestDto);
+      const result =
+        await this.retrievalService.queryLegalDocuments(legalQueryRequestDto);
       return new APIResponseDto(result);
+    } catch (error) {
+      return new APIResponseDto({}, error);
+    }
+  }
+
+  /**
+   * Obtiene los modelos disponibles para cada proveedor LLM
+   */
+  @Get('models')
+  @UseGuards(AuthGuard('bearer'))
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Obtiene los modelos disponibles para cada proveedor LLM',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de modelos disponibles por proveedor',
+  })
+  async getAvailableModels(): Promise<APIResponseDto> {
+    try {
+      const models = await this.retrievalService.getAvailableModels();
+      return new APIResponseDto(models);
     } catch (error) {
       return new APIResponseDto({}, error);
     }

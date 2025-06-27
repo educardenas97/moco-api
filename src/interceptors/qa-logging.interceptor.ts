@@ -26,7 +26,7 @@ export class QALoggingInterceptor implements NestInterceptor {
 
     // Solo interceptar endpoints de consulta
     const shouldLog = this.shouldLogEndpoint(className, methodName);
-    
+
     if (!shouldLog) {
       return next.handle();
     }
@@ -38,12 +38,7 @@ export class QALoggingInterceptor implements NestInterceptor {
       tap(async (data) => {
         try {
           const responseTime = Date.now() - startTime;
-          await this.logQAInteraction(
-            request,
-            data,
-            endpoint,
-            responseTime,
-          );
+          await this.logQAInteraction(request, data, endpoint, responseTime);
         } catch (error) {
           this.logger.error('Error al registrar interacción Q&A:', error);
         }
@@ -76,8 +71,8 @@ export class QALoggingInterceptor implements NestInterceptor {
       if (endpoint.includes('queryLegalDocuments')) {
         const requestDto = body as LegalQueryRequestDto;
         query = requestDto.query;
-        documentType = requestDto.documentType;
-        
+        documentType = 'legal'; // Tipo fijo para consultas legales
+
         if (responseData && responseData.data) {
           answer = responseData.data.answer || '';
           sources = responseData.data.sources || [];
@@ -85,7 +80,7 @@ export class QALoggingInterceptor implements NestInterceptor {
       } else if (endpoint.includes('getRetrieval')) {
         const requestDto = body as RetrievalRequestDto;
         query = requestDto.query;
-        
+
         if (responseData && responseData.records) {
           // Para el endpoint de retrieval, la "respuesta" son los documentos recuperados
           answer = `Se recuperaron ${responseData.records.length} documentos relevantes`;
@@ -107,7 +102,9 @@ export class QALoggingInterceptor implements NestInterceptor {
           },
         });
 
-        this.logger.debug(`Interacción Q&A registrada: ${query.substring(0, 50)}...`);
+        this.logger.debug(
+          `Interacción Q&A registrada: ${query.substring(0, 50)}...`,
+        );
       }
     } catch (error) {
       this.logger.error('Error interno al procesar interacción Q&A:', error);

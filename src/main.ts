@@ -8,7 +8,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Módulo de Conocimientos (MOCO-API)')
-    .setDescription('API para la gestión y recuperación de documentos basada en vectores')
+    .setDescription(
+      'API para la gestión y recuperación de documentos basada en vectores',
+    )
     .setVersion('0.2')
     .addBearerAuth()
     .build();

@@ -66,9 +66,17 @@ REDIS_VECTOR_INDEX=docs_embed       # Nombre del índice vectorial en Redis
 
 # Servicio de Embeddings
 OPENAI_API_KEY=                     # Clave API de OpenAI para embeddings
-OPENAI_MODEL=                       # Modelo de OpenAI a utilizar (ej: gpt-4.1)
 EMBEDDING_PROVIDER=openai           # Proveedor de embeddings (openai o google)
 RETRIEVAL_SERVICE_TYPE=redis        # Tipo de servicio de recuperación (redis o vertex)
+
+# Configuración de LLM (Large Language Models)
+LLM_PROVIDER=openai                 # Proveedor de LLM por defecto (openai o anthropic)
+ANTHROPIC_API_KEY=                  # Clave API de Anthropic Claude
+
+
+# Modelos disponibles por proveedor (separados por comas)
+OPENAI_MODELS=o4-mini,gpt-4.1,gpt-4-turbo,gpt-4o,gpt-4o-mini,gpt-3.5-turbo
+ANTHROPIC_MODELS=claude-3-5-sonnet-20241022,claude-3-5-haiku-20241022,claude-3-opus-20240229
 
 # Configuración de Vertex AI (si RETRIEVAL_SERVICE_TYPE=vertex)
 GOOGLE_VERTEXAI_MATCHINGENGINE_INDEX=       # ID del índice de Vertex AI Matching Engine
@@ -127,6 +135,66 @@ $ docker run -p 4001:4001 --env-file .env moco-api
 ```
 
 También puede utilizar el archivo de configuración de Kubernetes incluido para desplegar en un clúster.
+
+## Uso de la API
+
+### Consultas Legales con LLM
+
+La API proporciona un endpoint especializado para realizar consultas legales utilizando modelos de lenguaje (LLM) con contexto de documentos jurídicos:
+
+```http
+POST /retrieval/legal-query
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "query": "¿Cuáles son los requisitos para constituir una empresa en Paraguay?",
+  "provider": "anthropic",
+  "model": "claude-3-5-sonnet-20241022"
+}
+```
+
+**Parámetros:**
+- `query` (requerido): La consulta legal a realizar
+- `provider` (opcional): Proveedor de LLM (`openai` o `anthropic`)
+- `model` (opcional): Modelo específico a utilizar
+
+**Respuesta:**
+```json
+{
+  "success": true,
+  "data": {
+    "answer": "Para constituir una empresa en Paraguay...",
+    "sources": [
+      {
+        "title": "Ley N° 1034/83 del Comerciante",
+        "content": "...",
+        "score": 0.95
+      }
+    ]
+  }
+}
+```
+
+### Modelos Disponibles
+
+Obtiene la lista de modelos disponibles para cada proveedor:
+
+```http
+GET /retrieval/models
+Authorization: Bearer <token>
+```
+
+**Respuesta:**
+```json
+{
+  "success": true,
+  "data": {
+    "openai": ["gpt-4.1", "gpt-4-turbo", "gpt-4o", "gpt-4o-mini"],
+    "anthropic": ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"]
+  }
+}
+```
 
 ## Arquitectura
 

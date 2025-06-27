@@ -23,9 +23,11 @@ describe('RetrievalService', () => {
           provide: DocumentRetrievalServiceFactory,
           useValue: {
             createService: jest.fn().mockReturnValue({
-              findDocuments: jest.fn().mockResolvedValue([
-                { filename: 'test.pdf', pageNumber: 1, score: 0.8 },
-              ]),
+              findDocuments: jest
+                .fn()
+                .mockResolvedValue([
+                  { filename: 'test.pdf', pageNumber: 1, score: 0.8 },
+                ]),
             }),
           },
         },
@@ -58,7 +60,7 @@ describe('RetrievalService', () => {
       knowledge_id: 'test',
       retrieval_setting: { top_k: 5, score_threshold: 0.5 },
     });
-    
+
     expect(result).toBeDefined();
     expect(result.length).toBeGreaterThan(0);
     expect(result[0].content).toBe('Contenido de prueba');
@@ -66,7 +68,7 @@ describe('RetrievalService', () => {
 
   it('should get options', async () => {
     const options = await service.getOptions();
-    
+
     expect(options).toBeDefined();
     expect(options.topics).toEqual(['Topic1', 'Topic2']);
     expect(options.questions).toEqual(['FAQ1', 'FAQ2']);

@@ -1,6 +1,15 @@
 # Módulo `retrieval`
 
-Este módulo está diseñado para realizar la recuperación de documentos relevantes basados en una pregunta del usuario.  Utiliza el patrón de diseño Factory Method para desacoplar la lógica principal de recuperación de las implementaciones concretas de los servicios de embedding, recuperación de documentos y acceso al contenido de los documentos.
+Este módulo está diseñado para realizar la recuperación de documentos relevantes basados en una pregunta del usuario y generar respuestas inteligentes utilizando modelos de lenguaje (LLM). Utiliza el patrón de diseño Factory Method para desacoplar la lógica principal de recuperación de las implementaciones concretas de los servicios de embedding, recuperación de documentos, acceso al contenido de los documentos y generación de respuestas con LLM.
+
+## Características Principales
+
+- **Recuperación de Documentos**: Búsqueda semántica de documentos utilizando embeddings vectoriales
+- **Consultas Legales Inteligentes**: Generación de respuestas a consultas legales usando LLM con contexto documental
+- **Múltiples Proveedores de LLM**: Soporte para OpenAI (GPT-4, etc.) y Anthropic Claude
+- **Plantillas de Prompts Centralizadas**: Sistema unificado de instrucciones y prompts para consultas legales
+- **Configuración Flexible**: Selección dinámica de proveedores y modelos mediante variables de entorno
+- **Validación de Modelos**: Verificación automática de compatibilidad entre proveedores y modelos
 
 ## Estructura del Directorio
 
@@ -17,7 +26,9 @@ retrieval/
 ├── dto/
 │   ├── index.ts
 │   ├── retrieval-request.dto.ts
-│   └── retrieval-response.dto.ts
+│   ├── retrieval-response.dto.ts
+│   ├── legal-query-request.dto.ts
+│   └── legal-query-response.dto.ts
 ├── embedding/
 │   ├── embedding-service.factory.ts
 │   ├── embedding-service.interface.ts
@@ -28,11 +39,18 @@ retrieval/
 │   ├── document-retrieval-service.interface.ts
 │   ├── redis-retrieval.service.ts
 │   └── vertex-ai-matching-engine-retrieval.service.ts
-└── document-content/
-    ├── document-content-service.factory.ts
-    ├── document-content-service.interface.ts
-    ├── firestore-document-content.service.ts
-    └── redis-document-content.service.ts
+├── document-content/
+│   ├── document-content-service.factory.ts
+│   ├── document-content-service.interface.ts
+│   ├── firestore-document-content.service.ts
+│   └── redis-document-content.service.ts
+└── llm/
+    ├── llm-service.factory.ts
+    ├── llm-service.interface.ts
+    ├── llm.config.ts
+    ├── legal-prompt-templates.ts
+    ├── openai-llm.service.ts
+    └── claude-llm.service.ts
 ```
 
 *   **`retrieval.controller.ts`**: Controlador NestJS que expone los endpoints de la API relacionados con la recuperación de documentos.
@@ -44,6 +62,8 @@ retrieval/
 *   **`dto/`**: Define los Data Transfer Objects (DTOs) utilizados en el módulo.
     *   `retrieval-request.dto.ts`: Define la estructura del DTO para las peticiones al servicio de recuperación.
     *   `retrieval-response.dto.ts`: Define la estructura de respuesta para las operaciones de recuperación.
+    *   `legal-query-request.dto.ts`: Define la estructura del DTO para consultas legales con LLM.
+    *   `legal-query-response.dto.ts`: Define la estructura de respuesta para consultas legales.
 
 *   **`embedding/`**: Servicios relacionados con la generación de embeddings de texto.
     *   `embedding-service.interface.ts`: Define la interfaz `EmbeddingService` con el contrato para los servicios de embedding.
@@ -62,6 +82,29 @@ retrieval/
     *   `firestore-document-content.service.ts`: Implementación que recupera el contenido desde Firestore.
     *   `redis-document-content.service.ts`: Implementación que recupera el contenido desde Redis.
     *   `document-content-service.factory.ts`: Factory que selecciona la implementación según la configuración.
+
+*   **`llm/`**: Servicios para la generación de respuestas utilizando modelos de lenguaje (LLM).
+    *   `llm-service.interface.ts`: Define la interfaz `LLMService` con el contrato para los servicios de LLM.
+    *   `openai-llm.service.ts`: Implementación que utiliza los modelos de OpenAI (GPT-4, etc.).
+    *   `claude-llm.service.ts`: Implementación que utiliza los modelos de Anthropic Claude.
+    *   `llm-service.factory.ts`: Factory que crea instancias del servicio de LLM según el proveedor.
+    *   `llm.config.ts`: Configuración de modelos disponibles para cada proveedor.
+    *   `legal-prompt-templates.ts`: Plantillas centralizadas de prompts e instrucciones para consultas legales.
+
+    ## Endpoints Disponibles
+
+### Recuperación de Documentos
+- **POST `/retrieval`**: Recupera documentos relevantes basados en una consulta.
+- **GET `/retrieval/topics`**: Obtiene los tópicos disponibles para consultas.
+
+### Consultas Legales con LLM
+- **POST `/retrieval/legal-query`**: Realiza una consulta legal utilizando un LLM y documentos jurídicos.
+  - Parámetros:
+    - `query` (requerido): La consulta legal a realizar
+    - `provider` (opcional): Proveedor de LLM (`openai` o `anthropic`)
+    - `model` (opcional): Modelo específico a utilizar
+
+- **GET `/retrieval/models`**: Obtiene los modelos disponibles para cada proveedor LLM.
 
     ## Configuración
 
@@ -94,4 +137,91 @@ Si `RETRIEVAL_SERVICE_TYPE=vertex` se deben configurar estas variables:
 - Variables específicas para cada proveedor:
   - Google: `GOOGLE_API_KEY` 
   - OpenAI: `OPENAI_API_KEY`
+
+### Configuración de Modelos de Lenguaje (LLM)
+
+- `LLM_PROVIDER`: Define el proveedor de LLM por defecto:
+  - `openai`: Utiliza los modelos de OpenAI (GPT-4, etc.)
+  - `anthropic`: Utiliza los modelos de Anthropic Claude
+
+- Variables específicas para cada proveedor:
+  - **OpenAI**: 
+    - `OPENAI_API_KEY`: Clave API de OpenAI
+    - `OPENAI_MODELS`: Lista de modelos disponibles separados por comas
+  - **Anthropic**: 
+    - `ANTHROPIC_API_KEY`: Clave API de Anthropic
+    - `ANTHROPIC_MODELS`: Lista de modelos disponibles separados por comas
+
+Ejemplo de configuración:
+```env
+# Configuración de LLM
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-proj-...
+OPENAI_MODELS=o4-mini,gpt-4.1,gpt-4-turbo,gpt-4o
+
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_MODELS=claude-3-5-sonnet-20241022,claude-3-5-haiku-20241022
+```
+
+## Ejemplos de Uso
+
+### Consulta Legal con OpenAI
+```http
+POST /retrieval/legal-query
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "query": "¿Cuáles son los requisitos para constituir una empresa en Paraguay?",
+  "provider": "openai",
+  "model": "o4-mini"
+}
+```
+
+### Consulta Legal con Claude
+```http
+POST /retrieval/legal-query
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "query": "¿Qué dice la legislación sobre el derecho laboral?",
+  "provider": "anthropic",
+  "model": "claude-3-5-sonnet-20241022"
+}
+```
+
+### Obtener Modelos Disponibles
+```http
+GET /retrieval/models
+Authorization: Bearer <token>
+```
+
+Respuesta:
+```json
+{
+  "success": true,
+  "data": {
+    "openai": ["o4-mini", "gpt-4.1", "gpt-4-turbo"],
+    "anthropic": ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"]
+  }
+}
+```
+
+## Arquitectura de Prompts
+
+El módulo utiliza un sistema centralizado de plantillas de prompts (`legal-prompt-templates.ts`) que:
+
+- **Estandariza las instrucciones**: Garantiza consistencia entre diferentes proveedores de LLM
+- **Facilita el mantenimiento**: Cambios en una sola ubicación se reflejan en todos los servicios
+- **Personaliza según contexto**: Adapta instrucciones basándose en el país de legislación
+- **Formatea documentos**: Estructura uniforme para el contexto documental
+
+### Ejemplo de Plantilla de Sistema
+```typescript
+// Mensaje generado automáticamente
+"Eres un asesor legal experto que responde con precisión y claridad, 
+citando las fuentes legales correspondientes. 
+Tu conocimiento se centra en la legislación paraguaya."
+```
 

@@ -37,7 +37,7 @@ export class RedisVectorRetrievalService implements DocumentRetrievalService {
         PARAMS: {
           embedding: Buffer.from(vector.buffer),
         },
-        RETURN: ['filename', 'score','page'],
+        RETURN: ['filename', 'score', 'page'],
         SORTBY: 'score',
         LIMIT: {
           from: 0,

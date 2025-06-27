@@ -5,9 +5,7 @@ import { RedisDocumentContentService } from './redis-document-content.service';
 
 @Injectable()
 export class DocumentContentServiceFactory {
-  constructor(
-    @Inject('REDIS_CLIENT') private readonly redisClient: any,
-  ) {}
+  constructor(@Inject('REDIS_CLIENT') private readonly redisClient: any) {}
 
   createService(): DocumentContentService {
     const storageType = process.env.STORAGE_TYPE || 'redis';

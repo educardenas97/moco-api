@@ -5,9 +5,7 @@ import { RedisVectorRetrievalService } from './redis-retrieval.service';
 
 @Injectable()
 export class DocumentRetrievalServiceFactory {
-  constructor(
-    @Inject('REDIS_CLIENT') private readonly redisClient: any,
-  ) {}
+  constructor(@Inject('REDIS_CLIENT') private readonly redisClient: any) {}
 
   createService(): DocumentRetrievalService {
     const retrievalServiceType = process.env.RETRIEVAL_SERVICE_TYPE || 'redis';
@@ -18,7 +16,9 @@ export class DocumentRetrievalServiceFactory {
       case 'redis':
         return new RedisVectorRetrievalService(this.redisClient);
       default:
-        throw new Error(`Unsupported retrieval service type: ${retrievalServiceType}`);
+        throw new Error(
+          `Unsupported retrieval service type: ${retrievalServiceType}`,
+        );
     }
   }
 }

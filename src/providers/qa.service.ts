@@ -37,7 +37,7 @@ export class QAService {
       const qaRecord = new this.qaModel({
         query: data.query,
         answer: data.answer,
-        sources: data.sources.map(source => ({
+        sources: data.sources.map((source) => ({
           title: source.title,
           content: source.content,
           score: source.score,
@@ -49,7 +49,7 @@ export class QAService {
       });
 
       const savedRecord = await qaRecord.save();
-      
+
       this.logger.debug(`Registro Q&A guardado con ID: ${savedRecord._id}`);
       return savedRecord;
     } catch (error) {
@@ -121,12 +121,14 @@ export class QAService {
    * @param filters Filtros para las estadísticas
    * @returns Estadísticas agregadas
    */
-  async getQAStats(filters: {
-    userId?: string;
-    endpoint?: string;
-    dateFrom?: Date;
-    dateTo?: Date;
-  } = {}): Promise<{
+  async getQAStats(
+    filters: {
+      userId?: string;
+      endpoint?: string;
+      dateFrom?: Date;
+      dateTo?: Date;
+    } = {},
+  ): Promise<{
     totalQueries: number;
     averageResponseTime: number;
     topQueries: Array<{ query: string; count: number }>;
@@ -239,7 +241,9 @@ export class QAService {
         'metadata.timestamp': { $lt: cutoffDate },
       });
 
-      this.logger.log(`Eliminados ${deleteResult.deletedCount} registros Q&A antiguos`);
+      this.logger.log(
+        `Eliminados ${deleteResult.deletedCount} registros Q&A antiguos`,
+      );
       return deleteResult.deletedCount;
     } catch (error) {
       this.logger.error('Error al limpiar registros Q&A antiguos:', error);
